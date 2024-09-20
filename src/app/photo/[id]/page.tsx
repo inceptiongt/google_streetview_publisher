@@ -1,17 +1,18 @@
 "use client"
 import { useEffect, useState } from "react"
 import React from 'react';
-import { Card, List, Input, Space } from 'antd';
-import { EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
-import {fetchGoogleApi} from '@/app/services'
+import { Input } from 'antd';
+import {getPhoto} from '@/app/services'
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 const Photo = ({ params }) => {
     const [data, setData] = useState({})
 
     useEffect(() => {
         try {
             const getPhotos = async () => {
-                const data = await fetchGoogleApi(`https://streetviewpublish.googleapis.com/v1/photo/${params.id}?view=BASIC`)
+                const data = await getPhoto(params.id)
                 setData(data)
             }
             getPhotos()
@@ -22,7 +23,7 @@ const Photo = ({ params }) => {
 
     }, [params.id])
     return (
-        <Input.TextArea value={JSON.stringify(data, null, 2)} autoSize />
+        <Input.TextArea value={JSON.stringify(data, null, 4)} autoSize  />
     )
 }
 

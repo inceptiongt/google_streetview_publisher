@@ -1,20 +1,18 @@
 "use client"
 import { useEffect, useState } from "react"
 import React from 'react';
-import { Card, List, Input, Space } from 'antd';
-import { EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
-import {fetchGoogleApi} from '@/app/services'
+import { Card, List, Space } from 'antd';
+import {getPhotoList} from '@/app/services'
 import { useRouter } from 'next/navigation'
-import Image from "next/image";
 
 const ViewList = () => {
-    const [data, setData] = useState([])
+    const [data, setData] = useState<gapi.client.streetviewpublish.Photo[]>()
     const router = useRouter()
 
     useEffect(() => {
         try {
             const getPhotos = async () => {
-                const data = await fetchGoogleApi("https://streetviewpublish.googleapis.com/v1/photos?view=BASIC")
+                const data = await getPhotoList()
                 setData(data.photos)
             }
             getPhotos()
@@ -38,14 +36,14 @@ const ViewList = () => {
                         //     <EditOutlined key="edit" />,
                         //     <EllipsisOutlined key="ellipsis" />,
                         // ]}
-                        cover={<Image alt="example" src={item.thumbnailUrl} />}
-                        onClick={()=>router.push(`./photo/${item.photoId.id}`)}
+                        cover={<img alt="example" src={item.thumbnailUrl}/>}
+                        onClick={()=>router.push(`./photo/${item.photoId?.id}`)}
                     >
                         {/* <Meta title="Europe Street beat" description="www.instagram.com" /> */}
                         <Space>
                             {item.mapsPublishStatus}
                             {item.uploadTime}
-                            {item.places.map(i => i.name).join('')}
+                            {item.places?.map(i => i.name).join('')}
                         </Space>
                     </Card>
                     {/* <Input.TextArea value={JSON.stringify(item, null, 2)} autoSize /> */}
