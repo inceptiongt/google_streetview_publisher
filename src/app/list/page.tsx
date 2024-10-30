@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import React from 'react';
 import { Card, List, Space } from 'antd';
-import {getPhotoList} from '@/app/services'
+import {getPhotoList} from '@/services'
 import { useRouter } from 'next/navigation'
 
 const ViewList = () => {

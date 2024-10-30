@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { googleProvider } from '@/app/services';
+import { googleProvider } from '@/services';
 
 
 

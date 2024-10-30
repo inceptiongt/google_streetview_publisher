@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import React from 'react';
 import { Input } from 'antd';
-import {getPhoto} from '@/app/services'
+import {getPhoto} from '@/services'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
@@ -13,7 +13,10 @@ const Photo = ({ params }) => {
         try {
             const getPhotos = async () => {
                 const data = await getPhoto(params.id)
-                setData(data)
+                if(data){
+
+                    setData(data)
+                }
             }
             getPhotos()
 
