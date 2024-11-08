@@ -1,4 +1,3 @@
-"use client"
 import React, { useEffect, useState } from 'react';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps, GetProp, FormProps } from 'antd';

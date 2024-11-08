@@ -1,27 +1,32 @@
+import 'server-only'
 import { message } from 'antd';
 import { GoogleOAuthProvider } from 'google-oauth-gsi';
+import { cookies } from 'next/headers'
+import { auth } from '@/auth'
 
 // gapi.client.streetviewpublish
 
-export const googleProvider = new GoogleOAuthProvider({
-    clientId: "288084532212-7c4fdc25h74val15gnshb4cvag7esk5h.apps.googleusercontent.com",
-    onScriptLoadError: () => console.log('onScriptLoadError'),
-    onScriptLoadSuccess: () => console.log('onScriptLoadSuccess'),
-});
+// export const googleProvider = new GoogleOAuthProvider({
+//     clientId: "288084532212-7c4fdc25h74val15gnshb4cvag7esk5h.apps.googleusercontent.com",
+//     onScriptLoadError: () => console.log('onScriptLoadError'),
+//     onScriptLoadSuccess: () => console.log('onScriptLoadSuccess'),
+// });
 
 const fetchGoogleApi = async <T>(url: string, options?: RequestInit) => {
     try {
+        const session = await auth()
         const res = await fetch(url, {
             ...options,
             headers: {
                 ...options?.headers,
-                "Authorization": `Bearer ${localStorage.getItem('google_token')}`,
+                "Authorization": `Bearer ${session?.accessToken}`,
             },
         })
         if (!res.ok) {
-            const err: {error:gapi.client.streetviewpublish.Status} = await res.json()
+            // const err: {error:gapi.client.streetviewpublish.Status} = await res.json()
+            // return err
             // window.history.pushState(null,'','/login')
-            message.error(err.error.message)
+            // message.error(err.error.message)
         }
         const rst: T = await res.json()
         return rst

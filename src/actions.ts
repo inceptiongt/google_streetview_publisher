@@ -2,7 +2,7 @@
 
 import { RcFile } from 'antd/es/upload';
 import { writeFile } from 'fs/promises';
-import {XmpData} from '@/app/upload/page';
+import {XmpData} from '@/app/(content)/upload/page';
 import { exiftool } from 'exiftool-vendored';
 
 const saveUploadPhoto: (photo:File, uid:string) => Promise<string> = async(photo, uid) => {
