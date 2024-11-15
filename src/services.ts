@@ -1,8 +1,9 @@
-import 'server-only'
-import { message } from 'antd';
-import { GoogleOAuthProvider } from 'google-oauth-gsi';
-import { cookies } from 'next/headers'
-import { auth } from '@/auth'
+// import 'server-only'
+"use server"
+
+import { auth, signOut as _signOut } from '@/auth'
+import { revalidateTag } from 'next/cache';
+import { promises as fs } from 'fs';
 
 // gapi.client.streetviewpublish
 
@@ -11,29 +12,52 @@ import { auth } from '@/auth'
 //     onScriptLoadError: () => console.log('onScriptLoadError'),
 //     onScriptLoadSuccess: () => console.log('onScriptLoadSuccess'),
 // });
+type ResError = {
+    error: {
+        code: Response['status']
+        message: string
+        status: Response['statusText']
+    }
+}
+type ApiResutl<T, E> = {
+    ok: true;
+    status?: Response["status"];
+    statusText?: Response["statusText"];
+    result: T;
+} | {
+    ok: false;
+    status?: Response["status"];
+    statusText?: Response["statusText"];
+    result: E;
+};
 
 const fetchGoogleApi = async <T>(url: string, options?: RequestInit) => {
-    try {
-        const session = await auth()
-        const res = await fetch(url, {
-            ...options,
-            headers: {
-                ...options?.headers,
-                "Authorization": `Bearer ${session?.accessToken}`,
-            },
-        })
-        if (!res.ok) {
-            // const err: {error:gapi.client.streetviewpublish.Status} = await res.json()
-            // return err
-            // window.history.pushState(null,'','/login')
-            // message.error(err.error.message)
-        }
-        const rst: T = await res.json()
-        return rst
-    } catch (err) {
-        console.log('err', err)
+    const session = await auth()
+    const res = await fetch(url, {
+        ...options,
+        headers: {
+            ...options?.headers,
+            "Authorization": `Bearer ${session?.accessToken}`,
+        },
+    })
+
+    const { ok, status, statusText } = res
+
+    // 检查 content-type 是否为 JSON
+    let result;
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+        result = await res.json();
+    } else {
+        result = null; // 或者根据需要处理非 JSON 响应
     }
 
+    return {
+        ok,
+        status,
+        statusText,
+        result
+    } as ApiResutl<T, ResError>
 }
 
 export const getPhoto = async (photoId: string) => {
@@ -41,17 +65,19 @@ export const getPhoto = async (photoId: string) => {
 }
 
 export const getPhotoList = async () => {
-    return await fetchGoogleApi<gapi.client.streetviewpublish.ListPhotosResponse>("https://streetviewpublish.googleapis.com/v1/photos?view=BASIC")
+    return await fetchGoogleApi<gapi.client.streetviewpublish.ListPhotosResponse>("https://streetviewpublish.googleapis.com/v1/photos?view=BASIC", { next: { tags: ['list'] } })
 }
 
-export const uploadPhoto = async (body: File) => {
-    const startRef = await fetchGoogleApi<gapi.client.streetviewpublish.UploadRef>('https://streetviewpublish.googleapis.com/v1/photo:startUpload', {
+
+export const uploadPhoto = async (path: string) => {
+    const refRst = await fetchGoogleApi<gapi.client.streetviewpublish.UploadRef>('https://streetviewpublish.googleapis.com/v1/photo:startUpload', {
         method: "POST"
     })
-    if (startRef?.uploadUrl) {
+    if (refRst.ok && refRst.result.uploadUrl) {
+        const editedPhotoBuffer = await fs.readFile(path);
 
-        const arrayBuffer = await body.arrayBuffer();
-        await fetchGoogleApi(startRef.uploadUrl, {
+        const arrayBuffer = Buffer.from(editedPhotoBuffer);
+        const rst = await fetchGoogleApi<unknown>(refRst.result.uploadUrl, {
             method: 'POST',
             headers: {
                 "Content-Type": "image/jpeg",
@@ -60,8 +86,16 @@ export const uploadPhoto = async (body: File) => {
             },
             body: arrayBuffer
         })
-        return startRef
+        if (rst?.ok) {
+            // 删除本地图片
+            await fs.unlink(path); // 删除指定路径的本地图片
+            return refRst
+        } else {
+            // 类型难题
+            return rst
+        }
     }
+    return refRst
 }
 
 export const createPhoto = async (photo: gapi.client.streetviewpublish.Photo) => {
@@ -71,13 +105,14 @@ export const createPhoto = async (photo: gapi.client.streetviewpublish.Photo) =>
     })
 }
 
-const a = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (Math.random() > 0.5) {
-        resolve("Mock.mock('@name')");
-      } else {
-        reject("sdsa");
-      }
-    }, 1000);
-  });
+export const deletePhoto = async (photoId: string, revalidate: boolean = false) => {
+    if (revalidate) {
+        revalidateTag('list')
+    }
+    return await fetchGoogleApi(`https://streetviewpublish.googleapis.com/v1/photo/${photoId}`, {
+        method: 'DELETE'
+    })
+}
+
+export const signOut = async () => await _signOut()
 

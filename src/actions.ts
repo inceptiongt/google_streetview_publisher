@@ -1,56 +1,55 @@
 "use server"
 
-import { RcFile } from 'antd/es/upload';
 import { writeFile } from 'fs/promises';
-import {XmpData} from '@/app/(content)/upload/page';
-import { exiftool } from 'exiftool-vendored';
+import { XmpData, PhotoCreate } from '@/app/(content)/upload/page';
+import { exiftool, WriteTaskResult } from 'exiftool-vendored';
+import sharp from 'sharp';
+import { omit } from 'lodash';
 
-const saveUploadPhoto: (photo:File, uid:string) => Promise<string> = async(photo, uid) => {
-    try {
-        if (photo) {
-            const fileName = `${uid}_${photo.name}`;
-            await writeFile(`./${fileName}`, Buffer.from(await photo.arrayBuffer()));
-            return `./${fileName}`
-        } else {
-            throw new Error('No photo uploaded');
+const saveUploadPhoto: (photo: File, uid: string, mirror: boolean) => Promise<string> = async (photo, uid, mirror) => {
+    const fileName = `${uid}_${photo.name}`;
+    const photoBuffer = await photo.arrayBuffer();
+    let img = sharp(photoBuffer);
+    if (mirror) {
+        img = img.flop(); // Use flip instead of scaleX
+    }
+    const mirroredBuffer = await img.toBuffer();
+    await writeFile(`./${fileName}`, mirroredBuffer);
+    return `./${fileName}`;
+}
+
+const writeXmpData: (path: string, xmpData: XmpData) => Promise<WriteTaskResult> = async (path, xmpData) => {
+    const prefixedXmpData = Object.fromEntries(
+        Object.entries(xmpData).map(([key, value]) => [`XMP:${key}`, value])
+    );
+    return await exiftool.write(path, prefixedXmpData);
+}
+
+export const writeXmpHandler: (data:FormData) => Promise<{ok: false,message: string}|{ok: true,data: {path: string}}> = async (data: FormData) => {
+    const photo = data.get('photo') as File;
+    const uid = data.get('uid') as string;
+    const photoCreateDataString = data.get('photoCreateData') as string;
+    if (!photo || !uid || !photoCreateDataString) {
+        return {
+            ok: false,
+            message: 'Missing form data'
         }
-    } catch (error) {
-        console.error('Error in saveUploadPhoto:', error);
-        throw error;
     }
-}
-
-const writeXmpData: (path: string, xmpData: XmpData) => Promise<void> = async(path, xmpData) => {
-    try {
-        const prefixedXmpData = Object.fromEntries(
-            Object.entries(xmpData).map(([key, value]) => [`XMP:${key}`, value])
-        );
-        await exiftool.write(path, prefixedXmpData);
-    } catch (error) {
-        console.error('Error in writeXmpData:', error);
-        throw error;
-    }
-}
-
-const writeXmpHandler: (data: FormData) => Promise<string> = async(data) => {
-    try {
-        const photo = data.get('photo') as File;
-        const uid = data.get('uid') as string;
-        const path = await saveUploadPhoto(photo, uid);
-        const xmpDataString = data.get('xmpData');
-        if (typeof xmpDataString !== 'string') {
-            throw new Error('xmpData is missing or invalid');
+    const photoCreate = JSON.parse(photoCreateDataString) as PhotoCreate;
+    const path = await saveUploadPhoto(photo, uid, photoCreate.mirror);
+    const xmpData = omit(photoCreate, ['mirror']);
+    const rst = await writeXmpData(path, xmpData);
+    if (rst.warnings) {
+        return {
+            ok:false,
+            message: rst.warnings.join(',')
         }
-        const xmpData = JSON.parse(xmpDataString) as XmpData;
-        await writeXmpData(path, xmpData);
-
-        const fs = require('fs').promises;
-        const editedPhotoBuffer = await fs.readFile(path);
-        return Buffer.from(editedPhotoBuffer).toString('base64');
-    } catch (error) {
-        console.error('Error in writeXmpHandler:', error);
-        throw error;
+    }
+    // const fs = require('fs').promises;
+    // const editedPhotoBuffer = await fs.readFile(path);
+    // return Buffer.from(editedPhotoBuffer).toString('base64');
+    return {
+        ok: true,
+        data: {path}
     }
 }
-
-export { writeXmpHandler }

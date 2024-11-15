@@ -68,6 +68,9 @@ dependencies:
   server-only:
     specifier: ^0.0.1
     version: 0.0.1
+  sharp:
+    specifier: ^0.33.5
+    version: 0.33.5
 
 devDependencies:
   '@types/lodash':
@@ -562,8 +565,8 @@ packages:
       '@types/gapi.client.discovery-v1': 0.0.4
     dev: false
 
-  /@maxim_mazurok/gapi.client.streetviewpublish-v1@0.0.20241030:
-    resolution: {integrity: sha512-H58q/hLqlNKBf8puNkyAttGDs12HdLd3f5hHwjSL8jRPujZLdogq/DZqmGoA7DGHSDdZtaugfbP3igPvlKGtrw==}
+  /@maxim_mazurok/gapi.client.streetviewpublish-v1@0.0.20241113:
+    resolution: {integrity: sha512-ga+8HAXIxL7zs8SWIdarzeg4cloYh3iPsgjMjK73UZC9bPnxRhjSiU/t62V5U5j4RCQSDNN0Exu50yIyXVUAcw==}
     dependencies:
       '@types/gapi.client': 1.0.8
       '@types/gapi.client.discovery-v1': 0.0.4
@@ -838,7 +841,7 @@ packages:
   /@types/gapi.client.streetviewpublish-v1@0.0.4:
     resolution: {integrity: sha512-wAX0FP6PQ0sOmEWP9LYpKuMrI22DB4N6ua4dSwssJIZe3IrcEzgUJYh92AHJVYBEuZkcs6awVs8upjo9fXPpeQ==}
     dependencies:
-      '@maxim_mazurok/gapi.client.streetviewpublish-v1': 0.0.20241030
+      '@maxim_mazurok/gapi.client.streetviewpublish-v1': 0.0.20241113
     dev: false
 
   /@types/gapi.client@1.0.8:
@@ -1434,7 +1437,6 @@ packages:
       color-name: 1.1.4
       simple-swizzle: 0.2.2
     dev: false
-    optional: true
 
   /color@4.2.3:
     resolution: {integrity: sha512-1rXeuUUiGGrykh+CeBdu5Ie7OJwinCgQY0bc7GCRxy5xVHy+moaqkpL/jqQq0MtQOeYcrqEz4abc5f0KtU7W4A==}
@@ -1444,7 +1446,6 @@ packages:
       color-convert: 2.0.1
       color-string: 1.9.1
     dev: false
-    optional: true
 
   /commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
@@ -1572,7 +1573,6 @@ packages:
     engines: {node: '>=8'}
     requiresBuild: true
     dev: false
-    optional: true
 
   /didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
@@ -2480,7 +2480,6 @@ packages:
     resolution: {integrity: sha512-eVRqCvVlZbuw3GrM63ovNSNAeA1K16kaR/LRY/92w0zxQ5/1YzwblUX652i4Xs9RwAGjW9d9y6X88t8OaAJfWQ==}
     requiresBuild: true
     dev: false
-    optional: true
 
   /is-async-function@2.0.0:
     resolution: {integrity: sha512-Y1JXKrfykRJGdlDwdKlLpLyMIiWqWvuSd17TvZk68PLAOGOoF4Xyav1z0Xhoi+gCYjZVeC5SI+hYFOfvXmGRCA==}
@@ -3996,7 +3995,6 @@ packages:
       '@img/sharp-win32-ia32': 0.33.5
       '@img/sharp-win32-x64': 0.33.5
     dev: false
-    optional: true
 
   /shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
@@ -4030,7 +4028,6 @@ packages:
     dependencies:
       is-arrayish: 0.3.2
     dev: false
-    optional: true
 
   /slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}

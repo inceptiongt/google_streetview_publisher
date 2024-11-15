@@ -10,7 +10,7 @@ const { handlers, signIn, signOut, auth } = NextAuth({
         // prompt: "consent",
         // access_type: "offline",
         // response_type: "code",
-        scope:'https://www.googleapis.com/auth/streetviewpublish openid profile',
+        scope:'https://www.googleapis.com/auth/streetviewpublish openid profile email',
       },
     },
   })],

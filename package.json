@@ -29,7 +29,8 @@
     "next-auth": "5.0.0-beta.25",
     "react": "19.0.0-rc-603e6108-20241029",
     "react-dom": "19.0.0-rc-603e6108-20241029",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.10",
