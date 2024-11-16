@@ -62,7 +62,7 @@ const ClientList = ({ photos }: { photos?: gapi.client.streetviewpublish.Photo[]
                                         <DeleteOutlined key="delete"/>
                                     </Popconfirm>,
                                 ]}
-                                cover={<Image alt="" src={item.thumbnailUrl} width={200} height={100} style={{ height: 'auto' }} />}
+                                cover={<Image alt="" src={item.thumbnailUrl ?? ''} width={200} height={100} style={{ height: 'auto' }} />}
 
                             >
                                 {/* <Meta title="Europe Street beat" description="www.instagram.com" /> */}

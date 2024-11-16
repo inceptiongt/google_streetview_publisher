@@ -1,7 +1,7 @@
 "use server"
 
 import { writeFile } from 'fs/promises';
-import { XmpData, PhotoCreate } from '@/app/(content)/upload/page';
+import { XmpData, PhotoCreate } from '@/type';
 import { exiftool, WriteTaskResult } from 'exiftool-vendored';
 import sharp from 'sharp';
 import { omit } from 'lodash';

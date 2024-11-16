@@ -27,8 +27,9 @@ const { handlers, signIn, signOut, auth } = NextAuth({
       return token
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken
-      return session
+      const _session = Object.assign(session)
+      _session.accessToken = token.accessToken
+      return _session
     },
     // authorized: async ({ auth }) => {
     //   // Logged in users are authenticated, otherwise redirect to login page

@@ -4,6 +4,7 @@
 import { auth, signOut as _signOut } from '@/auth'
 import { revalidateTag } from 'next/cache';
 import { promises as fs } from 'fs';
+import { Session } from 'next-auth';
 
 // gapi.client.streetviewpublish
 
@@ -32,7 +33,7 @@ type ApiResutl<T, E> = {
 };
 
 const fetchGoogleApi = async <T>(url: string, options?: RequestInit) => {
-    const session = await auth()
+    const session = await auth() as Session & {accessToken: string} | null
     const res = await fetch(url, {
         ...options,
         headers: {

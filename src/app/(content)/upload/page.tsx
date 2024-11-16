@@ -11,47 +11,13 @@ import { mapValues, omit } from 'lodash'
 import { useRequest } from 'ahooks';
 import dayjs from 'dayjs'
 import Gmap from './map';
+import {FixXmpData, PhotoCreate} from '@/type'
 import Link from 'next/link';
 
 const { Title } = Typography;
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
-class FixXmpData {
-    UsePanoramaViewer = 'true' as const;
-    ProjectionType = 'equirectangular' as const;
-    InitialViewHeadingDegrees: number = 0;
-    CroppedAreaLeftPixels: number = 0;
-    CroppedAreaTopPixels: number = 0;
-}
 
-export class XmpData extends FixXmpData {
-    CaptureSoftware?: string;
-    StitchingSoftware?: string;
-    PoseHeadingDegrees: number = 0;
-    PosePitchDegrees?: number;
-    PoseRollDegrees?: number;
-    InitialViewPitchDegrees?: number;
-    InitialViewRollDegrees?: number;
-    InitialHorizontalFOVDegrees?: number;
-    InitialVerticalFOVDegrees?: number;
-    FirstPhotoDate?: Date;
-    LastPhotoDate?: Date;
-    SourcePhotosCount?: number;
-    ExposureLockUsed?: boolean;
-    CroppedAreaImageWidthPixels: number = 0;
-    CroppedAreaImageHeightPixels: number = 0;
-    FullPanoWidthPixels: number = 0;
-    FullPanoHeightPixels: number = 0;
-    InitialCameraDolly?: number;
-    Latitude: number = 0;
-    Longitude: number = 0;
-    CreateDate: string = new Date().toISOString();
-    PlaceId: string = ''
-}
-
-export class PhotoCreate extends XmpData {
-    mirror: boolean = false
-}
 
 const fixXmpData = new FixXmpData();
 const photoCreate = new PhotoCreate();
@@ -109,7 +75,7 @@ const UploadPhoto = () => {
             if (cRst.ok) {
                 notificationApi.success({
                     message: '创建成功',
-                    description: (<Link href={cRst.result.shareLink} target={'_blank'}>在 Google Map 中查看</Link>),
+                    description: (<Link href={cRst.result.shareLink ?? ''} target={'_blank'}>在 Google Map 中查看</Link>),
                     duration: 0,
                 });
             } else {
