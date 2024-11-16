@@ -20,7 +20,7 @@ const { handlers, signIn, signOut, auth } = NextAuth({
   },
   debug: true,
   callbacks: {
-    async jwt({ token, trigger, session, account }) {
+    async jwt({ token, account }) {
       if (account?.provider === "google") {
         return { ...token, accessToken: account.access_token }
       }

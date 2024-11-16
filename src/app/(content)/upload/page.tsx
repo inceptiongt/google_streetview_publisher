@@ -223,7 +223,7 @@ const PhotoForm: React.FC<PhotoFormType> = ({ submitHandler, form, loading }) =>
         submitHandler(values)
     };
 
-    const onFinishFailed: FormProps<PhotoCreate>['onFinishFailed'] = (errorInfo) => {
+    const onFinishFailed: FormProps<PhotoCreate>['onFinishFailed'] = () => {
         
     };
 

@@ -49,7 +49,7 @@ const ClientList = ({ photos }: { photos?: gapi.client.streetviewpublish.Photo[]
                                 actions={[
                                     // <SettingOutlined key="setting"/>,
                                     <EyeOutlined key="eys" onClick={() => window.open(`${item.shareLink}`, '_blank')} />,
-                                    <EditOutlined key="edit" onClick={(e) => { alert(1); }} />,
+                                    <EditOutlined key="edit" />,
                                     <Popconfirm
                                         key="delete"
                                         title="Delete the task"
