@@ -1,42 +1,39 @@
 "use client"
 import React from 'react';
-import { Breadcrumb, Button, Layout, List, Menu, Popover, theme } from 'antd';
+import { Button, Col, Layout, Menu, Popover, Row, theme } from 'antd';
 import type { MenuProps } from 'antd'
 import { usePathname, useRouter } from 'next/navigation';
 import { User } from 'next-auth';
 import Image from "next/image";
+import Link from 'next/link'
 import { signOut } from "@/services"
 
 
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 const menuItems: MenuItem[] = [
     {
-        label: 'Home',
+        label: '首页',
         key: '/'
     },
     {
-        label: 'Upload',
+        label: '创建图片',
         key: 'upload'
     },
     {
-        label: 'List',
+        label: '图片列表',
         key: 'list'
     },
-    {
-        label: "Login",
-        key: 'login'
-    }
 ]
 
 const App: React.FC<{ children: React.ReactNode, user?: User }> = ({ children, user }) => {
     const pathname = usePathname()
     const router = useRouter()
     const {
-        token: { colorBgContainer, borderRadiusLG, colorTextHeading },
+        token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
 
     const popContent = (
@@ -65,22 +62,33 @@ const App: React.FC<{ children: React.ReactNode, user?: User }> = ({ children, u
                     mode="horizontal"
                     //   defaultSelectedKeys={['2']}
                     selectedKeys={[pathname.substring(1)]}
-                    onClick={(e) => { console.log('e', e); router.push(e.key) }}
+                    onClick={(e) => { router.push(e.key) }}
                     items={menuItems}
                     style={{ flex: 1, minWidth: 0 }}
                 />
-                <div style={{ color: colorTextHeading }}>
-                    {user?.email}
-                    <Popover content={popContent}>
-                        <Image alt="" width={30} height={30} src={user?.image ?? ''} />
-                    </Popover>
-                </div>
+                {
+                    user ? (
+                        <Row style={{ color: "white" }}>
+                            <Col>
+                                <Popover content={popContent}>
+                                    {user?.email}
+                                    <Image alt="" width={30} height={30} src={user?.image ?? ''} style={{ verticalAlign: "middle" }} />
+                                </Popover>
+                            </Col>
+                        </Row>
+                    ) : (
+                        <Row style={{ color: "white" }}>
+                            <Link href={'/login'}>Login</Link>
+                        </Row>
+                    )
+                }
+
             </Header>
             <Content style={{ padding: '0 48px' }}>
                 <div
                     style={{
                         padding: 24,
-                        minHeight: 380,
+                        minHeight: "100vh",
                         background: colorBgContainer,
                         borderRadius: borderRadiusLG,
                     }}
@@ -88,9 +96,9 @@ const App: React.FC<{ children: React.ReactNode, user?: User }> = ({ children, u
                     {children}
                 </div>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>
-                Ant Design ©{new Date().getFullYear()} Created by Ant UED
-            </Footer>
+            {/* <Footer style={{ textAlign: 'center' }}>
+                Footer
+            </Footer> */}
         </Layout>
     );
 };

@@ -89,6 +89,7 @@ export const uploadPhoto = async (path: string) => {
         if (rst?.ok) {
             // 删除本地图片
             await fs.unlink(path); // 删除指定路径的本地图片
+            await fs.unlink(`${path}_original`) //删除备份
             return refRst
         } else {
             // 类型难题
@@ -99,19 +100,25 @@ export const uploadPhoto = async (path: string) => {
 }
 
 export const createPhoto = async (photo: gapi.client.streetviewpublish.Photo) => {
-    return await fetchGoogleApi<gapi.client.streetviewpublish.Photo>('https://streetviewpublish.googleapis.com/v1/photo', {
+    const rst = await fetchGoogleApi<gapi.client.streetviewpublish.Photo>('https://streetviewpublish.googleapis.com/v1/photo', {
         method: "POST",
         body: JSON.stringify(photo)
     })
+    if(rst.ok) {
+        revalidateTag('list')
+
+    }
+    return rst
 }
 
 export const deletePhoto = async (photoId: string, revalidate: boolean = false) => {
-    if (revalidate) {
-        revalidateTag('list')
-    }
-    return await fetchGoogleApi(`https://streetviewpublish.googleapis.com/v1/photo/${photoId}`, {
+    const rst = await fetchGoogleApi(`https://streetviewpublish.googleapis.com/v1/photo/${photoId}`, {
         method: 'DELETE'
     })
+    if (rst.ok && revalidate) {
+        revalidateTag('list')
+    }
+    return rst
 }
 
 export const signOut = async () => await _signOut()

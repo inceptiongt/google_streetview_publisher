@@ -2,14 +2,16 @@
 
 import React, { useState } from 'react';
 import { UploadOutlined } from '@ant-design/icons';
-import { UploadProps, GetProp, FormProps, FormInstance, message, Typography, Divider, Switch } from 'antd';
+import { UploadProps, GetProp, FormProps, FormInstance, message, Typography, Divider, Switch, notification } from 'antd';
 import { Button, Upload, Image, Row, Col, Input, Form, DatePicker } from 'antd';
 import ExifReader from 'exifreader';
 import { uploadPhoto, createPhoto } from '@/services'
 import { writeXmpHandler } from '@/actions'
 import { mapValues, omit } from 'lodash'
+import { useRequest } from 'ahooks';
 import dayjs from 'dayjs'
 import Gmap from './map';
+import Link from 'next/link';
 
 const { Title } = Typography;
 
@@ -58,11 +60,9 @@ const UploadPhoto = () => {
     const [fileList, setFileList] = useState<FileType[]>([]);
     const [mirror, setMirror] = useState(false);
     const [url, setUrl] = useState('')
-    const [metaData, setMetadata] = useState<ExifReader.ExpandedTags>({})
-    // const [writeRst, writeXmpHandlerAction, isPengding] = useActionState(writeXmpHandler, {})
-
     const [form] = Form.useForm();
     const [messageApi, contextHolder] = message.useMessage();
+    const [notificationApi, notificationContextHolder] = notification.useNotification();
 
     const handleUpload = async (xmpData: PhotoCreate) => {
         // try {
@@ -78,22 +78,12 @@ const UploadPhoto = () => {
                 "设置 XMP metedata 成功"
             )
         } else {
-            messageApi.error(res.message)
+            notificationApi.error({
+                message: res.message,
+                duration: 0
+            })
             return
         }
-
-        // console.log("arrayBuffer", base64)
-        // const binary = atob(base64);
-        // const array = [];
-        // for (let i = 0; i < binary.length; i++) {
-        //     array.push(binary.charCodeAt(i));
-        // }
-        // const blob = new Blob([new Uint8Array(array)], { type: fileList[0].type });
-        // const editedPhoto = new File([blob], fileList[0].name, { type: fileList[0].type });
-        // const tags = await ExifReader.load(editedPhoto, { expanded: true });
-        // console.log("edited tags", tags)
-        // setMetadata(resXmpData)
-        // return
         const refRst = await uploadPhoto(path)
 
         if (refRst.ok) {
@@ -117,7 +107,11 @@ const UploadPhoto = () => {
                 ],
             })
             if (cRst.ok) {
-                messageApi.success("创建成功")
+                notificationApi.success({
+                    message: '创建成功',
+                    description: (<Link href={cRst.result.shareLink} target={'_blank'}>在 Google Map 中查看</Link>),
+                    duration: 0,
+                });
             } else {
                 messageApi.error("创建失败" + cRst.statusText + cRst.result.error.message)
             }
@@ -130,14 +124,15 @@ const UploadPhoto = () => {
     }
 
     const beforeUpload = async (file: FileType) => {
-        setFileList([...fileList, file]);
+        setFileList([file]);
 
         const url = URL.createObjectURL(file)
         setUrl(url)
         const tags = await ExifReader.load(file, { expanded: true });
-        console.log("tags", tags)
+        
         const xmpData = getXmpData(tags)
         const fieldValue = { ...fixXmpData, ...xmpData, CreateDate: xmpData.CreateDate ? dayjs(xmpData.CreateDate) : dayjs(new Date('2001-01-01')) }
+        form.resetFields()
         form.setFieldsValue(fieldValue)
         // setMetadata(tags)
         return false
@@ -155,23 +150,31 @@ const UploadPhoto = () => {
         return { ...metaData.gps, ...xmp, CroppedAreaImageHeightPixels: xmp.height, CroppedAreaImageWidthPixels: xmp.width, FullPanoHeightPixels: xmp.height, FullPanoWidthPixels: xmp.width } as PhotoCreate
     }
 
+    const { loading, run: runHandleUpload } = useRequest(handleUpload, { manual: true })
+
     return (
         <>
             {contextHolder}
+            {notificationContextHolder}
             <Row gutter={[24, 24]} >
                 <Col span={12}>
                     <Title level={2}>上传照片</Title>
-                    {fileList.length > 0 && (<div style={{ position: 'relative' }}>
-                        <Image src={url} style={{ transform: mirror ? 'scaleX(-1)' : 'none' }}></Image>
-                        <div style={{
-                            position: 'absolute',
-                            top: 0,
-                            bottom: 0,
-                            left: '50%',
-                            borderLeft: '2px dashed red',
-                            transform: 'translateX(-50%)'
-                        }}></div>
-                    </div>)}
+                    {fileList.length > 0 && (
+                        <>
+                            <div style={{ position: 'relative' }}>
+                                <Image src={url} style={{ transform: mirror ? 'scaleX(-1)' : 'none' }}></Image>
+                                <div style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    bottom: 0,
+                                    left: '50%',
+                                    borderLeft: '2px dashed red',
+                                    transform: 'translateX(-50%)'
+                                }}></div>
+                            </div>
+                            {fileList[0].name}
+                        </>
+                    )}
                     <Divider />
                     <Row justify={'space-between'}>
                         <Col>
@@ -194,8 +197,9 @@ const UploadPhoto = () => {
                     <Title level={2}>设置元数据</Title>
                     <PhotoForm
                         // xmpData={getXmpData()}
-                        submitHandler={handleUpload}
+                        submitHandler={runHandleUpload}
                         form={form}
+                        loading={loading}
                     />
                     {/* <Input.TextArea value={JSON.stringify(metaData, null, 4)} autoSize={{ minRows: 2, maxRows: 16 }} /> */}
                 </Col>
@@ -209,17 +213,18 @@ type PhotoFormType = {
     // xmpData: PhotoCreate
     submitHandler: (xmpData: PhotoCreate) => void
     form: FormInstance
+    loading: boolean
 }
 
-const PhotoForm: React.FC<PhotoFormType> = ({ submitHandler, form }) => {
-    console.log("form render")
+const PhotoForm: React.FC<PhotoFormType> = ({ submitHandler, form, loading }) => {
+    
     const onFinish: FormProps<PhotoCreate>['onFinish'] = (values) => {
-        console.log('Success:', values);
+        
         submitHandler(values)
     };
 
     const onFinishFailed: FormProps<PhotoCreate>['onFinishFailed'] = (errorInfo) => {
-        console.log('Failed:', errorInfo);
+        
     };
 
     // const [form] = Form.useForm();
@@ -233,7 +238,7 @@ const PhotoForm: React.FC<PhotoFormType> = ({ submitHandler, form }) => {
                 case 'CreateDate':
                     return <DatePicker />;
                 case 'mirror':
-                    return <Switch />
+                    return <Switch disabled />
                 default:
                     return <Input disabled={Object.keys(fixXmpData).includes(key)} />;
             }
@@ -274,7 +279,7 @@ const PhotoForm: React.FC<PhotoFormType> = ({ submitHandler, form }) => {
             }
 
             <Form.Item wrapperCol={{ offset: 8 }}>
-                <Button size='large' type="primary" htmlType="submit">
+                <Button size='large' type="primary" htmlType="submit" loading={loading} disabled={loading}>
                     创建
                 </Button>
             </Form.Item>

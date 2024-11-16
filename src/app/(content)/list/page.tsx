@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
 import React from 'react';
-import { Alert, Card, List, Space } from 'antd';
+import { Alert } from 'antd';
 import { getPhotoList } from '@/services'
 import ClientList from "./ClientList";
+
 // import { useRouter } from 'next/navigation'
 
 const ViewList = async () => {
@@ -32,10 +32,54 @@ const ViewList = async () => {
                 showIcon
             />)
         }
-        
+
         return <ClientList photos={result.photos} />
+        // return (
+        //     <List
+        //         grid={{ gutter: 16, column: 4 }}
+        //         // dataSource={res.result.photos}
+        //         // renderItem={}
+        //     >
+        //         {
+        //             res.result.photos?.map((item) => {
+        //                 return (
+        //                     <List.Item key={item.photoId?.id}>
+        //                         <Card
+        //                             hoverable
+        //                             style={{ height: 'auto' }}
+        //                             actions={[
+        //                                 // <SettingOutlined key="setting"/>,
+        //                                 <EditOutlined key="edit" />,
+        //                                 <Popconfirm
+        //                                     key="delete"
+        //                                     title="Delete the task"
+        //                                     description="Are you sure to delete this task?"
+        //                                     onConfirm={() => confirm(item.photoId?.id)}
+        //                                     // onCancel={cancel}
+        //                                     okText="Yes"
+        //                                     cancelText="No"
+        //                                 >
+        //                                     <DeleteOutlined key="delete" />
+        //                                 </Popconfirm>,
+        //                             ]}
+        //                             cover={<Image alt="" src={item.thumbnailUrl} width={200} height={100} style={{ height: 'auto' }} />}
+        //                         // onClick={()=>router.push(`./photo/${item.photoId?.id}`)}
+        //                         >
+        //                             {/* <Meta title="Europe Street beat" description="www.instagram.com" /> */}
+        //                             <div><Space>状态：{item.mapsPublishStatus}</Space></div>
+        //                             <div><Space>时间：{item.uploadTime}</Space></div>
+        //                             <div></div><Space>地点：{item.places?.map(i => i.name).join('') || '无'}</Space>
+        //                         </Card>
+        //                         {/* <Input.TextArea value={JSON.stringify(item, null, 2)} autoSize /> */}
+        //                     </List.Item>
+        //                 )
+        //             })
+        //         }
+        //     </List>
+        // )
+
     }
-   
+
 }
 
 

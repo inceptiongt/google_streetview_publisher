@@ -14,7 +14,7 @@ export default ({pic}) => {
     // We got an instance of View360. This provides access to properties and methods.
     const view360 = viewerRef.current;
 
-    console.log(view360?.camera.yaw);
+    
     view360?.load(projection);
   }, [pic]);
 
