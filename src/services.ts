@@ -2,7 +2,6 @@
 "use server"
 
 import { auth, signOut as _signOut } from '@/auth'
-import { revalidateTag } from 'next/cache';
 import { promises as fs } from 'fs';
 import { Session } from 'next-auth';
 
@@ -66,7 +65,7 @@ export const getPhoto = async (photoId: string) => {
 }
 
 export const getPhotoList = async () => {
-    return await fetchGoogleApi<gapi.client.streetviewpublish.ListPhotosResponse>("https://streetviewpublish.googleapis.com/v1/photos?view=BASIC", { next: { tags: ['list'] } })
+    return await fetchGoogleApi<gapi.client.streetviewpublish.ListPhotosResponse>("https://streetviewpublish.googleapis.com/v1/photos?view=BASIC")
 }
 
 
@@ -105,20 +104,13 @@ export const createPhoto = async (photo: gapi.client.streetviewpublish.Photo) =>
         method: "POST",
         body: JSON.stringify(photo)
     })
-    if(rst.ok) {
-        // revalidateTag('list')
-
-    }
     return rst
 }
 
-export const deletePhoto = async (photoId: string, revalidate: boolean = false) => {
+export const deletePhoto = async (photoId: string) => {
     const rst = await fetchGoogleApi(`https://streetviewpublish.googleapis.com/v1/photo/${photoId}`, {
         method: 'DELETE'
     })
-    if (rst.ok && revalidate) {
-        // revalidateTag('list')
-    }
     return rst
 }
 
