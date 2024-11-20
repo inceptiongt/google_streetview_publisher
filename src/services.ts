@@ -106,7 +106,7 @@ export const createPhoto = async (photo: gapi.client.streetviewpublish.Photo) =>
         body: JSON.stringify(photo)
     })
     if(rst.ok) {
-        revalidateTag('list')
+        // revalidateTag('list')
 
     }
     return rst
@@ -117,7 +117,7 @@ export const deletePhoto = async (photoId: string, revalidate: boolean = false) 
         method: 'DELETE'
     })
     if (rst.ok && revalidate) {
-        revalidateTag('list')
+        // revalidateTag('list')
     }
     return rst
 }

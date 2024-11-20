@@ -21,6 +21,13 @@ const nextConfig = {
         bodySizeLimit: '100mb',
       },
     },
+    logging: {
+      fetches: {
+        fullUrl: true,
+        hmrRefreshes: true
+      },
+      
+    },
   }
 
 export default nextConfig;

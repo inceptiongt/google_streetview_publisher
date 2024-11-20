@@ -21,6 +21,7 @@ const ViewList = async () => {
     //     }
 
     // }, [])
+    console.log('+++++++++++++list page')
     const res = await getPhotoList()
     if (res) {
         const { ok, status, statusText, result } = res

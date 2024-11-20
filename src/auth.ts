@@ -19,6 +19,7 @@ const { handlers, signIn, signOut, auth } = NextAuth({
     updateAge: 3599
   },
   debug: true,
+  trustHost: true,
   callbacks: {
     async jwt({ token, account }) {
       if (account?.provider === "google") {

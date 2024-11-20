@@ -57,21 +57,19 @@ const UploadPhoto = () => {
             const latitude = xmpData.Latitude;
             const longitude = xmpData.Longitude;
             const placeId = xmpData.PlaceId
-            const cRst = await createPhoto({
+            const photo: gapi.client.streetviewpublish.Photo = {
                 uploadReference: refRst.result,
                 "pose": {
                     "latLngPair": {
                         "latitude": latitude,
                         "longitude": longitude
                     },
-                },
-                "places": [
-                    {
-                        "placeId": placeId,
-
-                    }
-                ],
-            })
+                }
+            }
+            if(placeId) {
+                photo.places=[{placeId}]
+            }
+            const cRst = await createPhoto(photo)
             if (cRst.ok) {
                 notificationApi.success({
                     message: '创建成功',
@@ -79,7 +77,10 @@ const UploadPhoto = () => {
                     duration: 0,
                 });
             } else {
-                messageApi.error("创建失败" + cRst.statusText + cRst.result.error.message)
+                notificationApi.error({
+                    message: "创建失败" + cRst.statusText + cRst.result.error.message,
+                    duration: 0
+                })
             }
         } else {
             messageApi.error("上传失败" + refRst.statusText + refRst.result.error.message)
@@ -219,8 +220,8 @@ const PhotoForm: React.FC<PhotoFormType> = ({ submitHandler, form, loading }) =>
                 // rules={[{ required: true, message: 'Please input your username!' }]}
                 // normalize={(v)=>{console.log("vo"+key,v); return v && v.value}}
                 // getValueProps={v => v}
-                required
-                rules={[{ required: true, message: 'Please input' }]}
+                required={["mirror","PlaceId"].includes(key)? false: true}
+                rules={[{ required: ["mirror","PlaceId"].includes(key)? false: true, message: 'Please input' }]}
             >
                 {renderItem(key as keyof PhotoCreate)}
             </Form.Item>
