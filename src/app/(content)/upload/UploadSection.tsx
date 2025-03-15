@@ -24,14 +24,15 @@ const UploadSection: React.FC<UploadSectionProps> = ({ form }) => {
   const fixXmpData = new FixXmpData();
 
   const getXmpData = (metaData: ExifReader.ExpandedTags): PhotoCreate => {
-    const xmp = mapValues({ width: metaData.file?.['Image Width'], height: metaData.file?.['Image Height'], ...metaData.file, ...metaData.xmp }, 'value');
+    const xmp = mapValues({ ...metaData.file, ...metaData.xmp, ...metaData.exif, width: metaData.file?.['Image Width'], height: metaData.file?.['Image Height'] }, 'value');
     return { 
       ...metaData.gps, 
       ...xmp, 
       CroppedAreaImageHeightPixels: xmp.height, 
       CroppedAreaImageWidthPixels: xmp.width, 
       FullPanoHeightPixels: xmp.height, 
-      FullPanoWidthPixels: xmp.width 
+      FullPanoWidthPixels: xmp.width,
+      CreateDate: xmp.DateTimeOriginal[0]
     } as PhotoCreate;
   };
 
