@@ -5,7 +5,7 @@ import ClientList from "./ClientList";
 
 // import { useRouter } from 'next/navigation'
 
-const ViewList = async () => {
+const ViewList = async (searchParams) => {
     // const [data, setData] = useState<gapi.client.streetviewpublish.Photo[]>()
     // const router = useRouter()
 
@@ -25,14 +25,14 @@ const ViewList = async () => {
     const res = await getPhotoList()
     if (res) {
         const { ok, status, statusText, result } = res
-        if (!ok) {
-            return (<Alert
-                message={`${status} ${statusText}`}
-                description={result.error.message}
-                type="error"
-                showIcon
-            />)
-        }
+        // if (!ok) {
+        //     return (<Alert
+        //         message={`${status} ${statusText}`}
+        //         description={result.error.message}
+        //         type="error"
+        //         showIcon
+        //     />)
+        // }
 
         return <ClientList photos={result.photos} />
         // return (

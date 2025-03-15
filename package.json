@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 5000",
-    "build": "next build",
+    "build": "ANALYZE=true next build",
     "start": "next start -p 5000",
     "lint": "next lint"
   },
@@ -13,6 +13,7 @@
     "@ant-design/nextjs-registry": "^1.0.1",
     "@egjs/react-view360": "4.0.0-beta.7",
     "@egjs/view360": "4.0.0-beta.7",
+    "@next/bundle-analyzer": "^15.0.3",
     "@types/gapi": "^0.0.47",
     "@types/gapi.client.streetviewpublish-v1": "^0.0.4",
     "@types/react": "npm:types-react@rc",

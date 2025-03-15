@@ -1,5 +1,5 @@
 "use client"
-import { Card, Col, message, Popconfirm, Row, Space } from "antd";
+import { Button, Card, Col, message, Popconfirm, Row, Space } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import { deletePhoto } from '@/services'
 import { useRouter } from 'next/navigation'
@@ -21,7 +21,7 @@ const ClientList = ({ photos }: { photos?: gapi.client.streetviewpublish.Photo[]
             })
             return
         }
-        const { ok, result } = await deletePhoto(id, true)
+        const { ok, result } = await deletePhoto(id)
         if (ok) {
             router.refresh()
             messageApi.success({
@@ -90,6 +90,7 @@ const ClientList = ({ photos }: { photos?: gapi.client.streetviewpublish.Photo[]
                     )
                 }}
             />
+            <Button onClick={router.refresh}>刷新</Button>
         </>
     );
 }
