@@ -4,7 +4,7 @@ import React from 'react';
 import { Input } from 'antd';
 import {getPhoto} from '@/services'
 
-const Photo = ({ params }) => {
+const Photo = ({ params }: {params: {id: string}}) => {
     const [data, setData] = useState({})
 
     useEffect(() => {
