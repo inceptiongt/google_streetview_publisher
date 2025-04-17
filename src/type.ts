@@ -1,15 +1,34 @@
-export class FixXmpData {
-    UsePanoramaViewer = 'true' as const;
-    ProjectionType = 'equirectangular' as const;
-    InitialViewHeadingDegrees: number = 0;
-    CroppedAreaLeftPixels: number = 0;
-    CroppedAreaTopPixels: number = 0;
+export interface FixedPublishInitXmpData {
+    UsePanoramaViewer: 'true';
+    ProjectionType: 'equirectangular';
+    InitialViewHeadingDegrees: 0;
+    CroppedAreaLeftPixels: 0;
+    CroppedAreaTopPixels: 0;
+    CroppedAreaImageWidthPixels: number;
+    CroppedAreaImageHeightPixels: number;
 }
 
-export class XmpData extends FixXmpData {
+export interface EditablePublishInitXmpData {
+    FullPanoWidthPixels: number;
+    FullPanoHeightPixels: number;
+    Latitude: number;
+    Longitude: number;
+    PlaceId: string;
+    PoseHeadingDegrees: number;
+    CreateDate: string;
+}
+
+export interface FormItems extends EditablePublishInitXmpData {
+    isMirror: boolean
+}
+
+export interface PublishInitXmpData extends FixedPublishInitXmpData, EditablePublishInitXmpData{
+
+}
+
+export interface XmpData extends PublishInitXmpData {
     CaptureSoftware?: string;
     StitchingSoftware?: string;
-    PoseHeadingDegrees: number = 0;
     PosePitchDegrees?: number;
     PoseRollDegrees?: number;
     InitialViewPitchDegrees?: number;
@@ -20,17 +39,5 @@ export class XmpData extends FixXmpData {
     LastPhotoDate?: Date;
     SourcePhotosCount?: number;
     ExposureLockUsed?: boolean;
-    CroppedAreaImageWidthPixels: number = 0;
-    CroppedAreaImageHeightPixels: number = 0;
-    FullPanoWidthPixels: number = 0;
-    FullPanoHeightPixels: number = 0;
     InitialCameraDolly?: number;
-    Latitude: number = 0;
-    Longitude: number = 0;
-    CreateDate: string = new Date().toISOString();
-    PlaceId: string = ''
-}
-
-export class PhotoCreate extends XmpData {
-    mirror: boolean = false
 }

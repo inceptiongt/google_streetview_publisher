@@ -1,6 +1,9 @@
 import React from 'react';
-import { FormProps, FormInstance, Button, Form, Input, DatePicker, Switch } from 'antd';
-import { PhotoCreate, FixXmpData } from '@/type';
+import { FormProps, FormInstance, Button, Form, Input, DatePicker, Switch, Row, Col, Tooltip } from 'antd';
+import {
+    QuestionCircleFilled,
+} from '@ant-design/icons';
+import { EditablePublishInitXmpData } from '@/type';
 import { useRequest } from 'ahooks';
 import { uploadPhoto, createPhoto } from '@/services';
 import { writeXmpHandler } from '@/actions';
@@ -8,27 +11,29 @@ import { omit } from 'lodash';
 import Link from 'next/link';
 import { message, notification } from 'antd';
 
-const fixXmpData = new FixXmpData();
-const photoCreate = new PhotoCreate();
 
 interface PhotoFormProps {
     form: FormInstance;
 }
 
+export interface FormItems extends EditablePublishInitXmpData {
+    isMirror: boolean
+}
+
 const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
     const [messageApi, contextHolder] = message.useMessage();
     const [notificationApi, notificationContextHolder] = notification.useNotification();
-    
-    const handleUpload = async (xmpData: PhotoCreate) => {
+
+    const handleUpload = async (xmpData: FormItems) => {
         // Get the file from the form data
         const fileList = form.getFieldValue('fileList');
         if (!fileList || fileList.length === 0) {
             messageApi.error("请先上传照片");
             return;
         }
-        
+
         const formData = new FormData();
-        formData.append('photo', fileList[0]);
+        formData.append('photo', fileList[0].originFileObj);
         formData.append('uid', fileList[0].uid);
         formData.append('photoCreateData', JSON.stringify(omit(xmpData, ['Latitude', 'Longitude', 'PlaceId'])));
         const res = await writeXmpHandler(formData);
@@ -61,8 +66,8 @@ const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
                     },
                 }
             };
-            if(placeId) {
-                photo.places=[{placeId}];
+            if (placeId) {
+                photo.places = [{ placeId }];
             }
             const cRst = await createPhoto(photo);
             if (cRst.ok) {
@@ -81,62 +86,153 @@ const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
             messageApi.error("上传失败" + refRst.statusText + refRst.result.error.message);
         }
     };
-    
+
     const { loading, run: runHandleUpload } = useRequest(handleUpload, { manual: true });
-    
-    const onFinish: FormProps<PhotoCreate>['onFinish'] = (values) => {
+
+    const onFinish: FormProps<FormItems>['onFinish'] = (values) => {
         runHandleUpload(values);
     };
 
-    const onFinishFailed: FormProps<PhotoCreate>['onFinishFailed'] = () => {
+    const onFinishFailed: FormProps<FormItems>['onFinishFailed'] = () => {
         // Handle form validation failure
-    };
-
-    const renderFormItem = () => {
-        const renderItem = (key: keyof PhotoCreate) => {
-            switch (key) {
-                case 'CreateDate':
-                    return <DatePicker />;
-                case 'mirror':
-                    return <Switch disabled />;
-                default:
-                    return <Input disabled={Object.keys(fixXmpData).includes(key)} />;
-            }
-        };
-
-        return Object.keys(photoCreate).map((key) => (
-            <Form.Item<PhotoCreate>
-                key={key}
-                label={key}
-                name={key as keyof PhotoCreate}
-                required={["mirror","PlaceId"].includes(key)? false: true}
-                rules={[{ required: ["mirror","PlaceId"].includes(key)? false: true, message: 'Please input' }]}
-            >
-                {renderItem(key as keyof PhotoCreate)}
-            </Form.Item>
-        ));
     };
 
     return (
         <>
             {contextHolder}
             {notificationContextHolder}
-            <Form<PhotoCreate>
+            <Form<FormItems>
                 form={form}
                 name="basic"
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
+                // labelCol={{ span: 8 }}
+                // wrapperCol={{ span: 16 }}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
                 autoComplete="off"
+                layout='vertical'
             >
-                {renderFormItem()}
+                <Row gutter={12}>
+                    <Col span={12}>
+                        <Form.Item<FormItems>
+                            key="FullPanoWidthPixels"
+                            label="FullPanoWidthPixels"
+                            name="FullPanoWidthPixels"
+                            layout='vertical'
+                            required={true}
+                            rules={[{ required: true, message: 'Please input' }]}
+                        >
+                            <Input disabled={false} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item<FormItems>
+                            key="FullPanoHeightPixels"
+                            label="FullPanoHeightPixels"
+                            name="FullPanoHeightPixels"
+                            layout='vertical'
+                            required={true}
+                            rules={[{ required: true, message: 'Please input' }]}
+                        >
+                            <Input disabled={false} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label={
+                                <Tooltip title="可在右侧地图内点选">
+                                    Latitude <QuestionCircleFilled />
+                                </Tooltip>
+                            }
+                            key="Latitude"
+                            layout='vertical'
+                            required={true}
+                            name="Latitude"
+                            rules={[{ required: true, message: 'Please input' }]}
+                        >
+                            <Input disabled={false} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label={
+                                <Tooltip title="可在右侧地图内点选">
+                                    Longitude <QuestionCircleFilled />
+                                </Tooltip>
+                            }
+                            key="Longitude"
+                            layout='vertical'
+                            required={true}
+                            name="Longitude"
+                            rules={[{ required: true, message: 'Please input' }]}
+                        >
+                            <Input disabled={false} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label={
+                                <Tooltip title="可在右侧地图内点选">
+                                    PlaceId <QuestionCircleFilled />
+                                </Tooltip>
+                            }
+                            key="PlaceId"
+                            layout='vertical'
+                            required={true}
+                            name="PlaceId"
+                            rules={[{ required: true, message: 'Please input' }]}
+                        >
+                            <Input disabled={false} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item<FormItems>
+                            key="PoseHeadingDegrees"
+                            label="PoseHeadingDegrees"
+                            name="PoseHeadingDegrees"
+                            layout='vertical'
+                            required={true}
+                            rules={[{ required: true, message: 'Please input' }]}
+                        >
+                            <Input disabled={false} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item<FormItems>
+                            key="CreateDate"
+                            label="CreateDate"
+                            name="CreateDate"
+                            layout='vertical'
+                            required={true}
+                            rules={[{ required: true, message: 'Please input' }]}
+                        >
+                            <DatePicker />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item<FormItems>
+                            key="isMirror"
+                            label="isMirror"
+                            name="isMirror"
+                            layout='vertical'
+                            required={false}
+                            rules={[{ required: false, message: 'Please input' }]}
+                        >
+                            <Switch />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
 
-                <Form.Item wrapperCol={{ offset: 8 }}>
-                    <Button size='large' type="primary" htmlType="submit" loading={loading} disabled={loading}>
-                        创建
-                    </Button>
-                </Form.Item>
+                        <Form.Item
+                            // wrapperCol={{ offset: 8 }}
+                            layout='vertical'
+                        >
+                            <Button size='large' type="primary" htmlType="submit" loading={loading} disabled={loading}>
+                                创建
+                            </Button>
+                        </Form.Item>
+                    </Col>
+
+                </Row>
             </Form>
         </>
     );

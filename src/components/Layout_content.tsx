@@ -54,11 +54,12 @@ const App: React.FC<{ children: React.ReactNode, user?: User }> = ({ children, u
                     width: '100%',
                     display: 'flex',
                     alignItems: 'center',
+                    background:'#ffffff'
                 }}
             >
                 <div className="demo-logo" />
                 <Menu
-                    theme="dark"
+                    // theme="dark"
                     mode="horizontal"
                     //   defaultSelectedKeys={['2']}
                     selectedKeys={[pathname.substring(1)]}
@@ -68,7 +69,7 @@ const App: React.FC<{ children: React.ReactNode, user?: User }> = ({ children, u
                 />
                 {
                     user ? (
-                        <Row style={{ color: "white" }}>
+                        <Row>
                             <Col>
                                 <Popover content={popContent}>
                                     {user?.email}
@@ -77,20 +78,23 @@ const App: React.FC<{ children: React.ReactNode, user?: User }> = ({ children, u
                             </Col>
                         </Row>
                     ) : (
-                        <Row style={{ color: "white" }}>
+                        <Row>
                             <Link href={'/login'}>Login</Link>
                         </Row>
                     )
                 }
 
             </Header>
-            <Content style={{ padding: '0 48px' }}>
+            <Content >
                 <div
                     style={{
-                        padding: 24,
+                        // padding: 24,
                         minHeight: "100vh",
                         background: colorBgContainer,
                         borderRadius: borderRadiusLG,
+                        width: '1200px',
+                        margin:'0 auto',
+                        marginTop: '12px'
                     }}
                 >
                     {children}

@@ -1,7 +1,8 @@
 "use server"
 
 import { writeFile } from 'fs/promises';
-import { XmpData, PhotoCreate } from '@/type';
+import { XmpData, PublishInitXmpData } from '@/type';
+import type { FormItems } from '@/app/(content)/upload/PhotoForm'
 import { exiftool, WriteTaskResult } from 'exiftool-vendored';
 import sharp from 'sharp';
 import { omit } from 'lodash';
@@ -25,7 +26,7 @@ const writeXmpData: (path: string, xmpData: XmpData) => Promise<WriteTaskResult>
     return await exiftool.write(path, prefixedXmpData);
 }
 
-export const writeXmpHandler: (data:FormData) => Promise<{ok: false,message: string}|{ok: true,data: {path: string}}> = async (data: FormData) => {
+export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: string } | { ok: true, data: { path: string } }> = async (data: FormData) => {
     const photo = data.get('photo') as File;
     const uid = data.get('uid') as string;
     const photoCreateDataString = data.get('photoCreateData') as string;
@@ -35,13 +36,22 @@ export const writeXmpHandler: (data:FormData) => Promise<{ok: false,message: str
             message: 'Missing form data'
         }
     }
-    const photoCreate = JSON.parse(photoCreateDataString) as PhotoCreate;
-    const path = await saveUploadPhoto(photo, uid, photoCreate.mirror);
-    const xmpData = omit(photoCreate, ['mirror']);
+    const FormItems = JSON.parse(photoCreateDataString) as FormItems;
+    const path = await saveUploadPhoto(photo, uid, FormItems.isMirror);
+    const xmpData: PublishInitXmpData = {
+        ...omit(FormItems, ['isMirror']),
+        UsePanoramaViewer: 'true',
+        ProjectionType: 'equirectangular',
+        InitialViewHeadingDegrees: 0,
+        CroppedAreaLeftPixels: 0,
+        CroppedAreaTopPixels: 0,
+        CroppedAreaImageHeightPixels: FormItems.FullPanoHeightPixels,
+        CroppedAreaImageWidthPixels: FormItems.FullPanoWidthPixels
+    };
     const rst = await writeXmpData(path, xmpData);
     if (rst.warnings) {
         return {
-            ok:false,
+            ok: false,
             message: rst.warnings.join(',')
         }
     }
@@ -50,6 +60,6 @@ export const writeXmpHandler: (data:FormData) => Promise<{ok: false,message: str
     // return Buffer.from(editedPhotoBuffer).toString('base64');
     return {
         ok: true,
-        data: {path}
+        data: { path }
     }
 }

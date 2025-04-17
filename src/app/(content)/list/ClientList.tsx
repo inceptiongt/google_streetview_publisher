@@ -5,13 +5,14 @@ import { deletePhoto } from '@/services'
 import { useRouter } from 'next/navigation'
 
 import { List } from "antd";
-const {Item: ListItem} = List
+const { Item: ListItem } = List
 import Image from "next/image";
+import dayjs from 'dayjs'
 
 const ClientList = ({ photos }: { photos?: gapi.client.streetviewpublish.Photo[] }) => {
     const router = useRouter()
     const [messageApi, contextHolder] = message.useMessage();
-// const {loading,runAsync} = useRequest(deletePhoto, {manual: true})
+    // const {loading,runAsync} = useRequest(deletePhoto, {manual: true})
 
     const confirm = async (id?: string) => {
 
@@ -35,7 +36,10 @@ const ClientList = ({ photos }: { photos?: gapi.client.streetviewpublish.Photo[]
     };
 
     return (
-        <>
+        <div
+            style={{ padding: '12px' }}
+
+        >
             {contextHolder}
             <List
                 grid={{ gutter: 16, column: 4 }}
@@ -59,28 +63,29 @@ const ClientList = ({ photos }: { photos?: gapi.client.streetviewpublish.Photo[]
                                         okText="Yes"
                                         cancelText="No"
                                     >
-                                        <DeleteOutlined key="delete"/>
+                                        <DeleteOutlined key="delete" />
                                     </Popconfirm>,
                                 ]}
                                 cover={<Image alt="" src={item.thumbnailUrl ?? ''} width={200} height={100} style={{ height: 'auto' }} />}
 
                             >
                                 {/* <Meta title="Europe Street beat" description="www.instagram.com" /> */}
-                                <Row >
+                                <Row gutter={[0, 8]}>
                                     <Col span={12}>
-                                        <Space>状态：{item.mapsPublishStatus}</Space>
+
+                                        状态：<br />{item.mapsPublishStatus}
                                     </Col>
                                     <Col span={12}>
-                                        <Space>上传时间：{item.uploadTime}</Space>
+                                        浏览次数：<br />{item.viewCount || 0}
                                     </Col>
                                     <Col span={12}>
-                                        <Space>地点：{item.places?.map(i => i.name).join('') || ' 暂无'}</Space>
+                                        上传时间：<br /> {dayjs(item.uploadTime).format('YYYY-MM-DD')}
                                     </Col>
                                     <Col span={12}>
-                                        <Space>拍摄时间：{item.captureTime}</Space>
+                                        拍摄时间：<br />{dayjs(item.captureTime).format('YYYY-MM-DD')}
                                     </Col>
                                     <Col span={12}>
-                                        <Space>浏览次数：{item.viewCount || 0}</Space>
+                                        地点：<br />{item.places?.map(i => i.name).join('') || ' 暂无'}
                                     </Col>
 
                                 </Row>
@@ -91,7 +96,7 @@ const ClientList = ({ photos }: { photos?: gapi.client.streetviewpublish.Photo[]
                 }}
             />
             <Button onClick={router.refresh}>刷新</Button>
-        </>
+        </div>
     );
 }
 

@@ -9,7 +9,7 @@ const Gmap: React.FC<{ form: FormInstance }> = ({ form }) => {
     const [placeId, setPlaceId] = useState('');
     return (
         <>
-            <Row style={{ height: '560px' }}>
+            <Row style={{ height: '400px' }}>
 
                 {/* <Col span={24} > */}
                 <APIProvider apiKey={API_KEY}>
@@ -18,39 +18,19 @@ const Gmap: React.FC<{ form: FormInstance }> = ({ form }) => {
                         defaultZoom={12}
                         defaultCenter={{ lat: 23.128788170495174, lng: 113.34538723489892 }}
                         onClick={({ detail }) => {
-                            setLatLng({ lat: detail.latLng?.lat ?? 0, lng: detail.latLng?.lng ?? 0 });
-                            setPlaceId(detail.placeId ?? '');
+                            form.setFieldsValue({
+                                Latitude: detail.latLng?.lat ?? 0,
+                                Longitude: detail.latLng?.lng ?? 0,
+                                PlaceId: detail.placeId ?? ''
+                            })
                         }}
                     />
                 </APIProvider>
                 {/* </Col>
             <Col span={24}> */}
             </Row>
-            <Divider />
-            <Row align="middle" justify="space-between" gutter={[16, 8]}>
-                <Col span={12}><Space>
-                    经纬度：
-                    lat: {latLng.lat}
-                    lng: {latLng.lng}
-                </Space></Col>
-                <Col><Button onClick={() => form.setFieldsValue({
-                    Latitude: latLng.lat,
-                    Longitude: latLng.lng,
-                })}>同步到右侧表单</Button></Col>
-            {/* </Row>
-            <Row align="middle" justify="space-between" gutter={[16, 8]}> */}
-                <Col span={12}><Space>
-                    位置信息：
-                    placeId: {placeId}
-                </Space></Col>
-                <Col>
-                    <Button onClick={() => form.setFieldsValue({
-                        PlaceId: placeId
-                    })}>同步到右侧表单</Button>
-                </Col>
-            </Row>
 
-            
+
         </>
     );
 }
