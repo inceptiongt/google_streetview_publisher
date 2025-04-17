@@ -4,13 +4,16 @@ import React from 'react';
 import { Input } from 'antd';
 import {getPhoto} from '@/services'
 
-const Photo = ({ params }: {params: {id: string}}) => {
+const Photo = async ({ params }:{
+    params: Promise<{ id: string }>
+  }) => {
     const [data, setData] = useState({})
+    const { id } = await params
 
     useEffect(() => {
         try {
             const getPhotos = async () => {
-                const data = await getPhoto(params.id)
+                const data = await getPhoto(id)
                 if(data){
 
                     setData(data)
@@ -22,7 +25,7 @@ const Photo = ({ params }: {params: {id: string}}) => {
 
         }
 
-    }, [params.id])
+    }, [id])
     return (
         <Input.TextArea value={JSON.stringify(data, null, 4)} autoSize  />
     )
