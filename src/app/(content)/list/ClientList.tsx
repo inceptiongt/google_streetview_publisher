@@ -1,5 +1,5 @@
 "use client"
-import { Button, Card, Col, message, Popconfirm, Row, Space } from "antd";
+import { Button, Card, Col, message, Popconfirm, Row } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import { deletePhoto } from '@/services'
 import { useRouter } from 'next/navigation'
