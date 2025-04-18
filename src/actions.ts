@@ -1,6 +1,6 @@
 "use server"
 
-import { writeFile } from 'fs/promises';
+import { writeFile, unlink } from 'fs/promises';
 import { XmpData, PublishInitXmpData } from '@/type';
 import type { FormItems } from '@/app/(content)/upload/PhotoForm'
 import { exiftool, WriteTaskResult } from 'exiftool-vendored';
@@ -23,7 +23,8 @@ const writeXmpData: (path: string, xmpData: XmpData) => Promise<WriteTaskResult>
     const prefixedXmpData = Object.fromEntries(
         Object.entries(xmpData).map(([key, value]) => [`XMP:${key}`, value])
     );
-    return await exiftool.write(path, prefixedXmpData);
+    const outputPath = path.replace(/(\.[^.]+)$/, '_xmp$1');
+    return await exiftool.write(path, prefixedXmpData, {writeArgs: ['-o', outputPath]});
 }
 
 export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: string } | { ok: true, data: { path: string } }> = async (data: FormData) => {
@@ -50,16 +51,16 @@ export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: 
     };
     const rst = await writeXmpData(path, xmpData);
     if (rst.warnings) {
+        await unlink(path);
         return {
             ok: false,
             message: rst.warnings.join(',')
         }
     }
-    // const fs = require('fs').promises;
-    // const editedPhotoBuffer = await fs.readFile(path);
-    // return Buffer.from(editedPhotoBuffer).toString('base64');
+    const outputPath = path.replace(/(\.[^.]+)$/, '_xmp$1');
+    await unlink(path);
     return {
         ok: true,
-        data: { path }
+        data: { path: outputPath }
     }
 }

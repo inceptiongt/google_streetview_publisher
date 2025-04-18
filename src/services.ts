@@ -89,7 +89,7 @@ export const uploadPhoto = async (path: string) => {
         if (rst?.ok) {
             // 删除本地图片
             await fs.unlink(path); // 删除指定路径的本地图片
-            await fs.unlink(`${path}_original`) //删除备份
+            // await fs.unlink(`${path}_original`) //删除备份
             return refRst
         } else {
             // 类型难题
