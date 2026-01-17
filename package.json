@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 5000",
+    "dev": "next dev -p 50050",
     "build": "ANALYZE=true next build",
-    "start": "next start -p 5000",
+    "start": "next start -p 50050",
     "lint": "next lint"
   },
   "dependencies": {
@@ -13,9 +13,10 @@
     "@ant-design/nextjs-registry": "^1.0.2",
     "@egjs/react-view360": "4.0.0-beta.7",
     "@egjs/view360": "4.0.0-beta.7",
-    "@next/bundle-analyzer": "^15.3.0",
+    "@next/bundle-analyzer": "16.1.2",
     "@types/gapi": "^0.0.47",
     "@types/gapi.client.streetviewpublish-v1": "^0.0.4",
+    "@types/global-agent": "^3.0.0",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
     "@vis.gl/react-google-maps": "^1.5.2",
@@ -24,23 +25,25 @@
     "dayjs": "^1.11.13",
     "exifreader": "^4.28.1",
     "exiftool-vendored": "^28.8.0",
+    "global-agent": "^3.0.0",
     "google-oauth-gsi": "^4.0.1",
     "googleapis": "^144.0.0",
     "lodash": "^4.17.21",
-    "next": "^15.3.0",
+    "next": "16.1.2",
     "next-auth": "5.0.0-beta.25",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "server-only": "^0.0.1",
-    "sharp": "^0.33.5"
+    "sharp": "^0.33.5",
+    "undici": "^7.18.2"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.16",
     "@types/node": "^20.17.30",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "19.2.8",
+    "@types/react-dom": "19.2.3",
     "eslint": "^8.57.1",
-    "eslint-config-next": "15.0.2",
+    "eslint-config-next": "16.1.2",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3"
@@ -48,5 +51,11 @@
   "overrides": {
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.8",
+      "@types/react-dom": "19.2.3"
+    }
   }
 }
