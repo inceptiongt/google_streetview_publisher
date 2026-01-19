@@ -91,7 +91,7 @@ const UploadPhoto = () => {
                         gutter={[0, 8]}
                     >
                         <Col span={24}>
-                            <SphereView img={fileList[0]?.originFileObj} />
+                            <SphereView img={fileList[0]?.originFileObj} name={fileList[0]?.originFileObj?.name} />
                         </Col>
                         <Col span={24}>
 
