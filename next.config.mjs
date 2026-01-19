@@ -2,22 +2,27 @@
 import withBundleAnalyzer from '@next/bundle-analyzer'
 import { ProxyAgent } from 'undici';
 
-// Ensure server-side fetch (undici) uses the same proxy when available
-const proxyUrl = process.env.HTTP_PROXY || process.env.HTTPS_PROXY;
-if (proxyUrl) {
-  try {
-    const proxyAgent = new ProxyAgent({ uri: proxyUrl });
-    const originalFetch = globalThis.fetch;
-    if (originalFetch) {
-      globalThis.fetch = (input, init = {}) => {
-        const opts = { ...init };
-        if (!opts.dispatcher) opts.dispatcher = proxyAgent;
-        return originalFetch(input, opts);
-      };
-      console.log('undici fetch wrapped to use proxy:', proxyUrl);
+// Only enable proxy wrapping in development mode
+const isDev = process.env.NODE_ENV === 'development';
+
+if (isDev) {
+  // Ensure server-side fetch (undici) uses the same proxy when available
+  const proxyUrl = process.env.HTTP_PROXY || process.env.HTTPS_PROXY;
+  if (proxyUrl) {
+    try {
+      const proxyAgent = new ProxyAgent({ uri: proxyUrl });
+      const originalFetch = globalThis.fetch;
+      if (originalFetch) {
+        globalThis.fetch = (input, init = {}) => {
+          const opts = { ...init };
+          if (!opts.dispatcher) opts.dispatcher = proxyAgent;
+          return originalFetch(input, opts);
+        };
+        console.log('undici fetch wrapped to use proxy:', proxyUrl);
+      }
+    } catch (err) {
+      console.warn('Failed to wrap undici fetch with ProxyAgent:', err);
     }
-  } catch (err) {
-    console.warn('Failed to wrap undici fetch with ProxyAgent:', err);
   }
 }
 
@@ -44,7 +49,7 @@ const nextConfig = {
     },
 
   },
-  serverExternalPackages:['exiftool-vendored'],
+  serverExternalPackages: ['exiftool-vendored'],
   // allowedDevOrigins: true,
 }
 

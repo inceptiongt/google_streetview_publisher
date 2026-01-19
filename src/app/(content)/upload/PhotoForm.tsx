@@ -58,6 +58,7 @@ export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: 
     let createExiv2Module: any = null;
     // Prefer loading the ESM bundle from the public path to avoid package-relative `dist/dist` issues.
     try {
+        /*@ts-ignore*/
         const esm = await import(/* webpackIgnore: true */ /* @vite-ignore */ '/exiv2-wasm/dist/exiv2.esm.js');
         createExiv2Module = (esm.createExiv2Module ?? esm.default) as any;
     } catch (e) {
@@ -117,25 +118,7 @@ const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
         let imgWhthXmp
         if (res.ok) {
             imgWhthXmp = res.data.img;
-            
-            // Save image with XMP to browser as a file
-            try {
-                const fileMeta = fileList[0] || {};
-                const mime = (fileMeta.type as string) || 'image/jpeg';
-                const blob = new Blob([imgWhthXmp.buffer], { type: mime });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                const originalName = (fileMeta.name as string) || 'photo';
-                a.download = originalName.replace(/\.[^/.]+$/, '') + '_with_xmp.jpg';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(url);
-                messageApi.success("设置 XMP metedata 成功，已下载到本地");
-            } catch (e) {
-                messageApi.success("设置 XMP metedata 成功");
-            }
+            messageApi.success("设置 XMP metedata 成功");
         } else {
             notificationApi.error({
                 message: res.message,
@@ -143,8 +126,6 @@ const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
             });
             return;
         }
-
-        return;
 
         const refRst = await uploadPhoto(imgWhthXmp.buffer);
 
