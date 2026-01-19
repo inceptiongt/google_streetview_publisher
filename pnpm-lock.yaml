@@ -60,6 +60,9 @@ importers:
       exiftool-vendored:
         specifier: ^28.8.0
         version: 28.8.0
+      exiv2-wasm:
+        specifier: ^0.5.13
+        version: 0.5.13
       global-agent:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1490,6 +1493,9 @@ packages:
 
   exiftool-vendored@28.8.0:
     resolution: {integrity: sha512-R7tirJLr9fWuH9JS/KFFLB+O7jNGKuPXGxREc6YybYangEudGb+X8ERsYXk9AifMiAWh/2agNfbgkbcQcF+MxA==}
+
+  exiv2-wasm@0.5.13:
+    resolution: {integrity: sha512-YjAZHpOdVO1PavdjnUucqEH5OtiBrdLUy4t+isqoYqZlFjhaAzwXmO26pvefOQ9pCWPRMqvCvP20xh5edNoOmA==}
 
   extend@3.0.2:
     resolution: {integrity: sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==}
@@ -4615,6 +4621,8 @@ snapshots:
     optionalDependencies:
       exiftool-vendored.exe: 13.0.0
       exiftool-vendored.pl: 13.0.1
+
+  exiv2-wasm@0.5.13: {}
 
   extend@3.0.2: {}
 

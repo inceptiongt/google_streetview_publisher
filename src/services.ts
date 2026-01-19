@@ -69,26 +69,26 @@ export const getPhotoList = async () => {
 }
 
 
-export const uploadPhoto = async (path: string) => {
+export const uploadPhoto = async (imgBuffer: ArrayBuffer) => {
     const refRst = await fetchGoogleApi<gapi.client.streetviewpublish.UploadRef>('https://streetviewpublish.googleapis.com/v1/photo:startUpload', {
         method: "POST"
     })
     if (refRst.ok && refRst.result.uploadUrl) {
-        const editedPhotoBuffer = await fs.readFile(path);
+        // const editedPhotoBuffer = await fs.readFile(path);
 
-        const arrayBuffer = Buffer.from(editedPhotoBuffer);
+        // const arrayBuffer = Buffer.from(editedPhotoBuffer);
         const rst = await fetchGoogleApi<unknown>(refRst.result.uploadUrl, {
             method: 'POST',
             headers: {
                 "Content-Type": "image/jpeg",
                 "X-Goog-Upload-Protocol": "raw",
-                "X-Goog-Upload-Content-Length": `${arrayBuffer.byteLength}`,
+                "X-Goog-Upload-Content-Length": `${imgBuffer.byteLength}`,
             },
-            body: arrayBuffer
+            body: imgBuffer
         })
         if (rst?.ok) {
             // 删除本地图片
-            await fs.unlink(path); // 删除指定路径的本地图片
+            // await fs.unlink(path); // 删除指定路径的本地图片
             // await fs.unlink(`${path}_original`) //删除备份
             return refRst
         } else {

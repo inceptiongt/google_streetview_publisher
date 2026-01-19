@@ -25,6 +25,7 @@
     "dayjs": "^1.11.13",
     "exifreader": "^4.28.1",
     "exiftool-vendored": "^28.8.0",
+    "exiv2-wasm": "^0.5.13",
     "global-agent": "^3.0.0",
     "google-oauth-gsi": "^4.0.1",
     "googleapis": "^144.0.0",
