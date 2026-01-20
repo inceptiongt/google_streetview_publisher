@@ -18,11 +18,18 @@ const Gmap: React.FC<{ form: FormInstance }> = ({ form }) => {
                         defaultZoom={12}
                         defaultCenter={{ lat: 23.128788170495174, lng: 113.34538723489892 }}
                         onClick={({ detail }) => {
-                            form.setFieldsValue({
-                                Latitude: detail.latLng?.lat ?? 0,
-                                Longitude: detail.latLng?.lng ?? 0,
-                                PlaceId: detail.placeId ?? ''
-                            })
+                            if (detail.placeId){
+                                form.setFieldsValue({
+                                    Latitude: detail.latLng?.lat ?? 0,
+                                    Longitude: detail.latLng?.lng ?? 0,
+                                    PlaceId: detail.placeId
+                                })
+                            } else {
+                                form.setFieldsValue({
+                                    Latitude: detail.latLng?.lat ?? 0,
+                                    Longitude: detail.latLng?.lng ?? 0,
+                                })
+                            }
                         }}
                     />
                 </APIProvider>

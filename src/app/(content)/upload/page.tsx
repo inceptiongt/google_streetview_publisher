@@ -6,7 +6,7 @@ import type { UploadProps, GetProp, UploadFile } from 'antd';
 import type { RcFile } from 'antd/es/upload/interface';
 import { UploadOutlined } from '@ant-design/icons';
 import ExifReader from 'exifreader';
-import { mapValues } from 'lodash';
+import { mapValues, without } from 'lodash';
 import dayjs from 'dayjs';
 import { FormItems } from '@/type';
 import SphereView from '@/components/SphereView';
@@ -17,12 +17,25 @@ const { Title } = Typography;
 
 type FileType = RcFile;
 
-const UploadPhoto = () => {
-    const [form] = Form.useForm();
+const UploadPhoto = async () => {
+    const [form] = Form.useForm<FormItems>();
     const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [mirror, setMirror] = useState(false);
-    const [url, setUrl] = useState('');
 
+    let createExiv2Module: any = null;
+    // Prefer loading the ESM bundle from the public path to avoid package-relative `dist/dist` issues.
+    try {
+        /*@ts-ignore*/
+        const esm = await import(/* webpackIgnore: true */ /* @vite-ignore */ '/exiv2-wasm/dist/exiv2.esm.js');
+        createExiv2Module = (esm.createExiv2Module ?? esm.default) as any;
+    } catch (e) {
+        // Fallback to package import (keeps behavior for environments where public copy isn't available)
+        const mod = await import('exiv2-wasm');
+        createExiv2Module = (mod.createExiv2Module ?? mod.default) as any;
+    }
+
+    const exiv2 = await createExiv2Module({
+        locateFile: (fileName: string) => `/exiv2-wasm/dist/${fileName}`
+    });
 
     const getXmpData = (metaData: ExifReader.ExpandedTags) => {
         const xmp = mapValues({ ...metaData.file, ...metaData.xmp, ...metaData.exif, width: metaData.file?.['Image Width'], height: metaData.file?.['Image Height'] }, 'value');
@@ -31,7 +44,8 @@ const UploadPhoto = () => {
             ...xmp,
             FullPanoHeightPixels: xmp.height,
             FullPanoWidthPixels: xmp.width,
-            CreateDate: xmp.DateTimeOriginal[0]
+            CreateDate: xmp.DateTimeOriginal[0],
+            PosteHeadingDegrees: xmp.PoseHeadingDegrees,
         }
     };
 
@@ -51,7 +65,7 @@ const UploadPhoto = () => {
             ...xmpData,
             CreateDate: xmpData.CreateDate ? dayjs(xmpData.CreateDate) : dayjs(new Date('2001-01-01'))
         };
-        form.resetFields();
+        form.resetFields(['FullPanoHeightPixels', 'FullPanoWidthPixels', 'CreateDate','PoseHeadingDegrees']);
         form.setFieldsValue({ ...fieldValue, fileList: [uploadFile] });
         // form.setFieldsValue(fieldValue);
         return false;
@@ -83,7 +97,7 @@ const UploadPhoto = () => {
                         <Button icon={<UploadOutlined />}>选择图片</Button>
                     </Upload>
                     <Title level={2}>设置元数据</Title>
-                    <PhotoForm form={form} />
+                    <PhotoForm form={form} exiv2={exiv2}/>
                 </Col>
                 <Col span={16}>
                     <Row
@@ -91,7 +105,7 @@ const UploadPhoto = () => {
                         gutter={[0, 8]}
                     >
                         <Col span={24}>
-                            <SphereView img={fileList[0]?.originFileObj} name={fileList[0]?.originFileObj?.name} />
+                            <SphereView img={fileList[0]?.originFileObj} uid={fileList[0]?.originFileObj?.uid} />
                         </Col>
                         <Col span={24}>
 

@@ -1,3 +1,5 @@
+import type { UploadFile } from "antd";
+
 export interface FixedPublishInitXmpData {
     UsePanoramaViewer: 'true';
     ProjectionType: 'equirectangular';
@@ -18,9 +20,11 @@ export interface EditablePublishInitXmpData {
     CreateDate: string;
 }
 
-export interface FormItems extends EditablePublishInitXmpData {
-    isMirror: boolean
-}
+// 正确定义 FormItems 类型（使用 type 而非 interface）
+export type FormItems = Omit<EditablePublishInitXmpData, 'CreateDate'> & {
+    fileList: UploadFile[];
+    CreateDate: Date; // 重新定义为 Date 类型
+};
 
 export interface PublishInitXmpData extends FixedPublishInitXmpData, EditablePublishInitXmpData{
 

@@ -7,10 +7,10 @@ import { RcFile } from 'antd/es/upload';
 
 interface SphereViewProps {
   img?: RcFile;
-  name?: string;
+  uid?: string;
 }
 
-const SphereView: React.FC<SphereViewProps> = ({ img, name }) => {
+const SphereView: React.FC<SphereViewProps> = ({ img, uid }) => {
 
   const viewerRef = useRef<View360>(null);
   const view360 = viewerRef.current
@@ -21,7 +21,7 @@ const SphereView: React.FC<SphereViewProps> = ({ img, name }) => {
 
   const initviewHandler = () => {
     // console.log(view360?.camera)
-    view360?.camera.animateTo({
+    viewerRef.current?.camera.animateTo({
       yaw: 0,
       pitch: 0,
       zoom: 0.6
@@ -29,7 +29,7 @@ const SphereView: React.FC<SphereViewProps> = ({ img, name }) => {
   }
 
   const aeroviewHandler = () => {
-    view360?.camera.animateTo({
+    viewerRef.current?.camera.animateTo({
       yaw: 0,
       pitch: -90,
       zoom: 0.6

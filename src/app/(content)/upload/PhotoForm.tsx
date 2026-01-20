@@ -11,18 +11,17 @@ import { omit } from 'lodash';
 import Link from 'next/link';
 import { message, notification } from 'antd';
 
+import type { FormItems } from '@/type';
+
 // import sharp from 'sharp';
 
 
 interface PhotoFormProps {
     form: FormInstance;
+    exiv2: any;
 }
 
-export interface FormItems extends EditablePublishInitXmpData {
-    isMirror: boolean
-}
-
-export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: string } | { ok: true, data: { img: Uint8Array<ArrayBuffer> } }> = async (data: FormData) => {
+export const writeXmpHandler: (data: FormData, exiv2: any) => Promise<{ ok: false, message: string } | { ok: true, data: { img: Uint8Array<ArrayBuffer> } }> = async (data: FormData) => {
     const photo = data.get('photo') as File;
     const uid = data.get('uid') as string;
     const photoCreateDataString = data.get('photoCreateData') as string;
@@ -32,48 +31,26 @@ export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: 
             message: 'Missing form data'
         }
     }
-    const FormItems = JSON.parse(photoCreateDataString) as FormItems;
-    const photoBuffer = await photo.arrayBuffer();
+
+    const formItems = JSON.parse(photoCreateDataString) as FormItems;
     
-    
-    // const imgBuffer = await saveUploadPhoto(photo, uid, FormItems.isMirror);
     const xmpData: PublishInitXmpData = {
-        ...omit(FormItems, ['isMirror']),
+        ...formItems,
+        CreateDate: formItems.CreateDate.toISOString(),
         UsePanoramaViewer: 'true',
         ProjectionType: 'equirectangular',
         InitialViewHeadingDegrees: 0,
         CroppedAreaLeftPixels: 0,
         CroppedAreaTopPixels: 0,
-        CroppedAreaImageHeightPixels: FormItems.FullPanoHeightPixels,
-        CroppedAreaImageWidthPixels: FormItems.FullPanoWidthPixels
+        CroppedAreaImageHeightPixels: formItems.FullPanoHeightPixels,
+        CroppedAreaImageWidthPixels: formItems.FullPanoWidthPixels
     };
-
-    if (typeof window === 'undefined') {
-        return {
-            ok: false,
-            message: 'Exiv2 must run in browser'
-        }
-    }
-
-    let createExiv2Module: any = null;
-    // Prefer loading the ESM bundle from the public path to avoid package-relative `dist/dist` issues.
-    try {
-        /*@ts-ignore*/
-        const esm = await import(/* webpackIgnore: true */ /* @vite-ignore */ '/exiv2-wasm/dist/exiv2.esm.js');
-        createExiv2Module = (esm.createExiv2Module ?? esm.default) as any;
-    } catch (e) {
-        // Fallback to package import (keeps behavior for environments where public copy isn't available)
-        const mod = await import('exiv2-wasm');
-        createExiv2Module = (mod.createExiv2Module ?? mod.default) as any;
-    }
-
-    const exiv2 = await createExiv2Module({
-        locateFile: (fileName: string) => `/exiv2-wasm/dist/${fileName}`
-    });
-
+    
+    const photoBuffer = await photo.arrayBuffer();
     let photoWhthXmp = new Uint8Array(photoBuffer);
     try {
         for (const [key, value] of Object.entries(xmpData)) {
+            //@ts-ignore
             photoWhthXmp = exiv2.writeString(photoWhthXmp, `Xmp.GPano.${key}`, value.toString()) as Uint8Array<ArrayBuffer>;
         }
     } catch (error) {
@@ -83,13 +60,11 @@ export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: 
         }
     }
     
-    
     // let rst = sharp(photoWhthXmp);
-    // if (FormItems.isMirror) {
+    // if (formItems.isMirror) {
     //     rst = rst.flop(); // Use flip instead of scaleX
     // }
     // const imgBuffer = await img.toBuffer();
-    
     
     return {
         ok: true,
@@ -97,7 +72,7 @@ export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: 
     }
 }
 
-const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
+const PhotoForm: React.FC<PhotoFormProps> = ({ form, exiv2 }) => {
     const [messageApi, contextHolder] = message.useMessage();
     const [notificationApi, notificationContextHolder] = notification.useNotification();
 
@@ -113,12 +88,12 @@ const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
         formData.append('photo', fileList[0].originFileObj);
         formData.append('uid', fileList[0].uid);
         formData.append('photoCreateData', JSON.stringify(omit(xmpData, ['Latitude', 'Longitude', 'PlaceId'])));
-        const res = await writeXmpHandler(formData);
         
+        const res = await writeXmpHandler(formData,exiv2);
         let imgWhthXmp
         if (res.ok) {
             imgWhthXmp = res.data.img;
-            messageApi.success("设置 XMP metedata 成功");
+            messageApi.success("设置 XMP metedata 成功, 开始上传照片");
         } else {
             notificationApi.error({
                 message: res.message,
@@ -130,7 +105,7 @@ const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
         const refRst = await uploadPhoto(imgWhthXmp.buffer);
 
         if (refRst.ok) {
-            messageApi.success("上传成功");
+            messageApi.success("上传成功，开始创建Street View");
             const latitude = xmpData.Latitude;
             const longitude = xmpData.Longitude;
             const placeId = xmpData.PlaceId;
@@ -285,7 +260,7 @@ const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
                             <DatePicker />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    {/* <Col span={12}>
                         <Form.Item<FormItems>
                             key="isMirror"
                             label="isMirror"
@@ -296,7 +271,7 @@ const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
                         >
                             <Switch />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
                     <Col span={24}>
 
                         <Form.Item
