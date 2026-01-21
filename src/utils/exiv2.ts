@@ -5,13 +5,13 @@
 import type { Exiv2Module } from '@/types/exiv2-wasm';
 
 // 缓存初始化后的模块，避免重复加载
-let exiv2Module: Exiv2Module;
+let exiv2Module: any;
 
 /**
  * 初始化 exiv2-wasm 模块（仅客户端运行）
  * @returns 初始化后的 exiv2 模块实例
  */
-export async function initExiv2(): Promise<Exiv2Module> {
+export async function initExiv2(): Promise<any> {
   // 缓存命中，直接返回
   if (exiv2Module) return exiv2Module;
 

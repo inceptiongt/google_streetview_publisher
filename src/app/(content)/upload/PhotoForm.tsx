@@ -34,7 +34,6 @@ export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: 
     
     const xmpData: PublishInitXmpData = {
         ...formItems,
-        CreateDate: formItems.CreateDate,
         UsePanoramaViewer: 'true',
         ProjectionType: 'equirectangular',
         InitialViewHeadingDegrees: 0,
@@ -51,10 +50,11 @@ export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: 
             //@ts-ignore
             photoWhthXmp = exiv2.writeString(photoWhthXmp, `Xmp.GPano.${key}`, value.toString()) as Uint8Array<ArrayBuffer>;
         }
+        photoWhthXmp = exiv2.writeString(photoWhthXmp, `Xmp.xmp.CreateDate`, formItems.CreateDate) as Uint8Array<ArrayBuffer>;
     } catch (error) {
         return {
             ok: false,
-            message: 'Failed to write XMP data using exiv2' + error
+            message: 'Failed to write XMP data using exiv2: ' + error
         }
     }
     
