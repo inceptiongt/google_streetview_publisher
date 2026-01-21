@@ -3,40 +3,38 @@ import { FormProps, FormInstance, Button, Form, Input, DatePicker, Switch, Row, 
 import {
     QuestionCircleFilled,
 } from '@ant-design/icons';
-import { EditablePublishInitXmpData, PublishInitXmpData } from '@/type';
+import type { EditablePublishInitXmpData, PublishInitXmpData, FormItems } from '@/types';
 import { useRequest } from 'ahooks';
 import { uploadPhoto, createPhoto } from '@/services';
 // import { writeXmpHandler } from '@/actions';
 import { omit } from 'lodash';
 import Link from 'next/link';
 import { message, notification } from 'antd';
-
-import type { FormItems } from '@/type';
-
 // import sharp from 'sharp';
-
+import { initExiv2 } from '@/utils/exiv2';
 
 interface PhotoFormProps {
     form: FormInstance;
-    exiv2: any;
 }
 
-export const writeXmpHandler: (data: FormData, exiv2: any) => Promise<{ ok: false, message: string } | { ok: true, data: { img: Uint8Array<ArrayBuffer> } }> = async (data: FormData) => {
+export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: string } | { ok: true, data: { img: Uint8Array<ArrayBuffer> } }> = async (data: FormData) => {
     const photo = data.get('photo') as File;
     const uid = data.get('uid') as string;
-    const photoCreateDataString = data.get('photoCreateData') as string;
-    if (!photo || !uid || !photoCreateDataString) {
+    const formDataPartlyString = data.get('formDataPartly') as string;
+    if (!photo || !uid || !formDataPartlyString) {
         return {
             ok: false,
             message: 'Missing form data'
         }
     }
 
-    const formItems = JSON.parse(photoCreateDataString) as FormItems;
+    const exiv2 = initExiv2();
+
+    const formItems = JSON.parse(formDataPartlyString);
     
     const xmpData: PublishInitXmpData = {
         ...formItems,
-        CreateDate: formItems.CreateDate.toISOString(),
+        CreateDate: formItems.CreateDate,
         UsePanoramaViewer: 'true',
         ProjectionType: 'equirectangular',
         InitialViewHeadingDegrees: 0,
@@ -72,7 +70,7 @@ export const writeXmpHandler: (data: FormData, exiv2: any) => Promise<{ ok: fals
     }
 }
 
-const PhotoForm: React.FC<PhotoFormProps> = ({ form, exiv2 }) => {
+const PhotoForm: React.FC<PhotoFormProps> = ({ form }) => {
     const [messageApi, contextHolder] = message.useMessage();
     const [notificationApi, notificationContextHolder] = notification.useNotification();
 
@@ -87,9 +85,9 @@ const PhotoForm: React.FC<PhotoFormProps> = ({ form, exiv2 }) => {
         const formData = new FormData();
         formData.append('photo', fileList[0].originFileObj);
         formData.append('uid', fileList[0].uid);
-        formData.append('photoCreateData', JSON.stringify(omit(xmpData, ['Latitude', 'Longitude', 'PlaceId'])));
+        formData.append('formDataPartly', JSON.stringify(omit(xmpData, ['Latitude', 'Longitude', 'PlaceId'])));
         
-        const res = await writeXmpHandler(formData,exiv2);
+        const res = await writeXmpHandler(formData);
         let imgWhthXmp
         if (res.ok) {
             imgWhthXmp = res.data.img;
