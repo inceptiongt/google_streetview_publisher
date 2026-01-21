@@ -28,7 +28,7 @@ export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: 
         }
     }
 
-    const exiv2 = initExiv2();
+    const exiv2 = await initExiv2();
 
     const formItems = JSON.parse(formDataPartlyString);
     
@@ -54,7 +54,7 @@ export const writeXmpHandler: (data: FormData) => Promise<{ ok: false, message: 
     } catch (error) {
         return {
             ok: false,
-            message: 'Failed to write XMP data using exiv2'
+            message: 'Failed to write XMP data using exiv2' + error
         }
     }
     
