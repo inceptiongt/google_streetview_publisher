@@ -10,7 +10,7 @@ import { mapValues, without } from 'lodash';
 import dayjs from 'dayjs';
 import { FormItems } from '@/types/index';
 import SphereView from '@/components/SphereView';
-import Gmap from './map';
+import Gmap from './_autoCompleteMap';
 import PhotoForm from './PhotoForm';
 
 const { Title } = Typography;
