@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+import type { NextConfig } from 'next'
 import withBundleAnalyzer from '@next/bundle-analyzer'
 import { ProxyAgent } from 'undici';
 
@@ -15,6 +15,7 @@ if (isDev) {
       if (originalFetch) {
         globalThis.fetch = (input, init = {}) => {
           const opts = { ...init };
+          // @ts-ignore
           if (!opts.dispatcher) opts.dispatcher = proxyAgent;
           return originalFetch(input, opts);
         };
@@ -26,7 +27,7 @@ if (isDev) {
   }
 }
 
-const nextConfig = {
+const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
