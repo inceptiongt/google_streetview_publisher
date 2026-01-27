@@ -1,13 +1,13 @@
 "use client"
-import { Button, Card, Col, message, Popconfirm, Row } from "antd";
+import { Button, Card, Col, message, Popconfirm, Row, List } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import { deletePhoto } from '@/services'
 import { useRouter } from 'next/navigation'
 
-import { List } from "antd";
-const { Item: ListItem } = List
 import Image from "next/image";
 import dayjs from 'dayjs'
+
+const { Item: ListItem } = List
 
 const ClientList = ({ photos }: { photos?: gapi.client.streetviewpublish.Photo[] }) => {
     const router = useRouter()

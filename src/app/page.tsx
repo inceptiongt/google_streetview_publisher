@@ -6,8 +6,9 @@ export default function Home() {
   console.log('++++++++++++app paga')
   return (
     <>
-    First Home
-    <Link href={'/list'}>List</Link>
+      首页
+      <Link href={'/upload'}>upload</Link>
+      <Link href={'/list'}>List</Link>
     </>
   )
 }

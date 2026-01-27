@@ -38,11 +38,6 @@ const nextConfig: NextConfig = {
       }
     ],
   },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '100mb',
-    },
-  },
   logging: {
     fetches: {
       fullUrl: true,
@@ -50,7 +45,6 @@ const nextConfig: NextConfig = {
     },
 
   },
-  serverExternalPackages: ['exiftool-vendored'],
   // allowedDevOrigins: true,
 }
 
