@@ -49,7 +49,6 @@ const nextConfig = {
     },
 
   },
-  serverExternalPackages: ['exiftool-vendored'],
   // allowedDevOrigins: true,
 }
 
